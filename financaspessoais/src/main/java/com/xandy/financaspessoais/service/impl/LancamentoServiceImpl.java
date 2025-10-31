@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.xandy.financaspessoais.exception.RegraNegocioException;
 import com.xandy.financaspessoais.model.entity.Lancamento;
 import com.xandy.financaspessoais.model.enums.StatusLancamento;
+import com.xandy.financaspessoais.model.enums.TipoLancamento;
 import com.xandy.financaspessoais.model.repository.LancamentoRepository;
 import com.xandy.financaspessoais.service.LancamentoService;
 
@@ -93,4 +94,21 @@ public class LancamentoServiceImpl implements LancamentoService{
 		return repository.findById(id);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal obterSaldoPorUsuario(Long id) {
+		
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+		
+		if(receitas == null) {
+			receitas = BigDecimal.ZERO;
+		}
+
+		if(despesas == null) {
+			despesas = BigDecimal.ZERO;
+		}
+
+		return receitas.subtract(despesas);
+	}
 }
